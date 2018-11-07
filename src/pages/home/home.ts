@@ -11,13 +11,13 @@ interface Setting<T> { label: string, value: T }
 })
 export class HomePage {
 	private colors: Setting<string>[] = [
-		{ label: 'Black',   value: 'black'  },
-		{ label: 'Red',     value: 'red'    },
-		{ label: 'Blue',    value: 'blue'   },
-		{ label: 'Yellow',  value: 'yellow' },
-		{ label: 'Green',   value: 'green'  },
-		{ label: 'Orange',  value: 'orange' },
-		{ label: 'Purple',  value: 'purple' }
+		{ label: 'Black',   value: '#000000' },
+		{ label: 'Red',     value: '#FF0000' },
+		{ label: 'Blue',    value: '#007FFF' },
+		{ label: 'Yellow',  value: '#FFCF00' },
+		{ label: 'Green',   value: '#007F00' },
+		{ label: 'Orange',  value: '#FF7F3F' },
+		{ label: 'Purple',  value: '#7F007F' }
 	];
 
 	private sizes: Setting<number>[] = [
