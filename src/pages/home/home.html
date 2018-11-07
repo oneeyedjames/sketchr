@@ -1,14 +1,34 @@
 <ion-header>
-  <ion-navbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-navbar>
+	<ion-navbar>
+		<button ion-button menuToggle>
+			<ion-icon name="menu"></ion-icon>
+		</button>
+		<ion-title>Sketchr</ion-title>
+		<ion-buttons end>
+			<button ion-button icon-only (click)="reset()">
+				<ion-icon name="refresh"></ion-icon>
+			</button>
+			<!-- <button ion-button icon-only (click)="presentOptionsModal()">
+				<ion-icon name="options"></ion-icon>
+			</button> -->
+		</ion-buttons>
+	</ion-navbar>
 </ion-header>
 
-<ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+<ion-content #content>
+	<app-canvas #canvas color="{{ color.value }}" size="{{ size.value }}"
+		width="{{ content.contentWidth }}" height="{{ content.contentHeight }}"></app-canvas>
 </ion-content>
+
+<ion-footer>
+	<ion-toolbar>
+		<ion-buttons start>
+			<button ion-button (click)="showColorAlert()">
+				Color: {{ color.label }}
+			</button>
+			<button ion-button (click)="showSizeAlert()">
+				Size: {{ size.label }}
+			</button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-footer>
