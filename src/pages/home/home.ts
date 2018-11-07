@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { NavController, AlertController, Content } from 'ionic-angular';
 
-import { CanvasComponent } from '../../app/canvas.component';
+import { CanvasComponent } from '../../components/canvas/canvas';
 
 interface Setting<T> { label: string, value: T }
 
@@ -55,11 +55,15 @@ export class HomePage {
 			});
 		}
 
-		alert.addButton('Cancel');
+		alert.addButton({
+			text: 'Cancel',
+			role: 'cancel'
+		});
+
 		alert.addButton({
 			text: 'Ok',
 			handler: (data) => {
-				this.color = this.colors.find(color => color.value == data );
+				this.color = this.colors.find(color => color.value == data);
 			}
 		});
 
@@ -80,11 +84,15 @@ export class HomePage {
 			});
 		}
 
-		alert.addButton('Cancel');
+		alert.addButton({
+			text: 'Cancel',
+			role: 'cancel'
+		});
+
 		alert.addButton({
 			text: 'Ok',
 			handler: (data) => {
-				this.size = this.sizes.find(size => size.value == data );
+				this.size = this.sizes.find(size => size.value == data);
 			}
 		});
 

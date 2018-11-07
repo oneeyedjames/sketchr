@@ -5,18 +5,19 @@ import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 
 import { MyApp } from './app.component';
-import { CanvasComponent } from './canvas.component';
 
 import { HomePage } from '../pages/home/home';
+
+import { ComponentsModule } from '../components/components.module';
 
 @NgModule({
 	declarations: [
 		MyApp,
-		CanvasComponent,
 		HomePage
 	],
 	imports: [
 		BrowserModule,
+		ComponentsModule,
 		IonicModule.forRoot(MyApp)
 	],
 	bootstrap: [IonicApp],
