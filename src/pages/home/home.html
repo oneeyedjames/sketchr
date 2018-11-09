@@ -11,10 +11,10 @@
 			<button ion-button icon-only (click)="canvas.reset()">
 				<ion-icon name="refresh"></ion-icon>
 			</button>
-			<button ion-button icon-only (click)="canvas.undo()">
+			<button ion-button icon-only (click)="canvas.undo()" [disabled]="!canUndo">
 				<ion-icon name="undo"></ion-icon>
 			</button>
-			<button ion-button icon-only (click)="canvas.redo()">
+			<button ion-button icon-only (click)="canvas.redo()" [disabled]="!canRedo">
 				<ion-icon name="redo"></ion-icon>
 			</button>
 		</ion-buttons>
@@ -26,7 +26,9 @@
 		[color]="color.value"
 		[size]="size.value"
 		[width]="content.contentWidth"
-		[height]="content.contentHeight"></app-canvas>
+		[height]="content.contentHeight"
+		(canUndo)="canUndo = $event"
+		(canRedo)="canRedo = $event"></app-canvas>
 </ion-content>
 
 <ion-footer>

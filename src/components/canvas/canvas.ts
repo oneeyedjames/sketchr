@@ -38,8 +38,8 @@ export class CanvasComponent implements AfterViewInit {
 
 	private stroke: Line2D[] = [];
 
-	@Output() canUndoChange = new EventEmitter<boolean>();
-	@Output() canRedoChange = new EventEmitter<boolean>();
+	@Output() canUndo = new EventEmitter<boolean>();
+	@Output() canRedo = new EventEmitter<boolean>();
 
 	get color(): string { return this._color; }
 	get size(): number { return this._size; }
@@ -167,8 +167,8 @@ export class CanvasComponent implements AfterViewInit {
 
 			this.stroke = [];
 
-			this.canUndoChange.emit(true);
-			this.canRedoChange.emit(false);
+			this.canUndo.emit(true);
+			this.canRedo.emit(false);
 		}
 	}
 
@@ -183,8 +183,8 @@ export class CanvasComponent implements AfterViewInit {
 
 			this.replay();
 
-			this.canUndoChange.emit(this.undoStack.length > 0);
-			this.canRedoChange.emit(true);
+			this.canUndo.emit(this.undoStack.length > 0);
+			this.canRedo.emit(true);
 		}
 	}
 
@@ -194,8 +194,8 @@ export class CanvasComponent implements AfterViewInit {
 
 			this.replay();
 
-			this.canUndoChange.emit(true);
-			this.canRedoChange.emit(this.redoStack.length > 0);
+			this.canUndo.emit(true);
+			this.canRedo.emit(this.redoStack.length > 0);
 		}
 	}
 
@@ -205,8 +205,8 @@ export class CanvasComponent implements AfterViewInit {
 
 		this.clear();
 
-		this.canUndoChange.emit(false);
-		this.canRedoChange.emit(false);
+		this.canUndo.emit(false);
+		this.canRedo.emit(false);
 	}
 
 	public replay(fps?: number, index?: number): Promise<any> {
