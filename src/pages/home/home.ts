@@ -36,6 +36,9 @@ export class HomePage {
 	@ViewChild('content')
 	public content: Content;
 
+	private canUndo: boolean;
+	private canRedo: boolean;
+
 	constructor(
 		public navCtrl: NavController,
 		public alertCtrl: AlertController
