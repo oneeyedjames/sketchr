@@ -12,9 +12,9 @@ export interface Point2D { x: number, y: number }
 export interface Line2D { start: Point2D; end: Point2D; }
 
 export interface DrawEvent {
-	line?: Line2D;
-	color?: string;
-	size?: number;
+	stroke: Line2D[];
+	color: string;
+	size: number;
 }
 
 @Component({
@@ -31,7 +31,15 @@ export class CanvasComponent implements AfterViewInit {
 	private context: CanvasRenderingContext2D;
 
 	@ViewChild('canvas')
-	public canvas: ElementRef;
+	private canvas: ElementRef;
+
+	private undoStack: DrawEvent[] = [];
+	private redoStack: DrawEvent[] = [];
+
+	private stroke: Line2D[] = [];
+
+	@Output() canUndoChange = new EventEmitter<boolean>();
+	@Output() canRedoChange = new EventEmitter<boolean>();
 
 	get color(): string { return this._color; }
 	get size(): number { return this._size; }
@@ -44,7 +52,7 @@ export class CanvasComponent implements AfterViewInit {
 		if (this.context)
 			this.context.strokeStyle = color;
 
-		this.draw.emit({ color: color });
+		this.colorChange.emit(color);
 	}
 
 	@Input() set size(size: number) {
@@ -53,7 +61,7 @@ export class CanvasComponent implements AfterViewInit {
 		if (this.context)
 			this.context.lineWidth = size;
 
-		this.draw.emit({ size: size });
+		this.sizeChange.emit(size);
 	}
 
 	@Input() set width(width: number) {
@@ -61,6 +69,8 @@ export class CanvasComponent implements AfterViewInit {
 
 		if (this.context)
 			this.initContext(this.canvas.nativeElement);
+
+		this.widthChange.emit(width);
 	}
 
 	@Input() set height(height: number) {
@@ -68,9 +78,17 @@ export class CanvasComponent implements AfterViewInit {
 
 		if (this.context)
 			this.initContext(this.canvas.nativeElement);
+
+		this.heightChange.emit(height);
 	}
 
-	@Output() draw = new EventEmitter<DrawEvent>();
+	@Output() colorChange = new EventEmitter<string>();
+	@Output() sizeChange = new EventEmitter<number>();
+	@Output() widthChange = new EventEmitter<number>();
+	@Output() heightChange = new EventEmitter<number>();
+
+	@Output('draw')
+	private drawEvent = new EventEmitter<DrawEvent>();
 
 	public ngAfterViewInit() {
 		this.initContext(this.canvas.nativeElement);
@@ -97,25 +115,32 @@ export class CanvasComponent implements AfterViewInit {
 		})
 		.subscribe((value: [MouseEvent, MouseEvent]) => {
 			const rect = canvas.getBoundingClientRect();
-			const event = {
-				line: {
-					start: {
-						x: value[0].clientX - rect.left,
-						y: value[0].clientY - rect.top
-					},
-					end: {
-						x: value[1].clientX - rect.left,
-						y: value[1].clientY - rect.top
-					}
+			const line = {
+				start: {
+					x: value[0].clientX - rect.left,
+					y: value[0].clientY - rect.top
+				},
+				end: {
+					x: value[1].clientX - rect.left,
+					y: value[1].clientY - rect.top
 				}
 			};
 
-			this.doDraw(event.line.start, event.line.end);
-			this.draw.emit(event);
+			this.draw(line.start, line.end);
+			this.stroke.push(line);
 		});
+
+		Observable.fromEvent<MouseEvent>(canvas, 'mousedown')
+		.subscribe((event: MouseEvent) => this.onStartDraw());
+
+		Observable.fromEvent<MouseEvent>(canvas, 'mouseup')
+		.subscribe((event: MouseEvent) => this.onEndDraw());
+
+		Observable.fromEvent<MouseEvent>(canvas, 'mouseleave')
+		.subscribe((event: MouseEvent) => this.onEndDraw());
 	}
 
-	private doDraw(origin: Point2D, destination?: Point2D) {
+	private draw(origin: Point2D, destination?: Point2D) {
 		if (!this.context) return;
 
 		this.context.beginPath();
@@ -124,29 +149,121 @@ export class CanvasComponent implements AfterViewInit {
 		this.context.stroke();
 	}
 
-	public reset() {
+	private onStartDraw() {
+		this.stroke = [];
+	}
+
+	private onEndDraw() {
+		if (this.stroke.length) {
+			let event = {
+				stroke : this.stroke,
+				color : this.color,
+				size  : this.size
+			};
+
+			this.redoStack = [];
+			this.undoStack.push(event);
+			this.drawEvent.emit(event);
+
+			this.stroke = [];
+
+			this.canUndoChange.emit(true);
+			this.canRedoChange.emit(false);
+		}
+	}
+
+	private clear() {
 		if (this.context)
 			this.context.clearRect(0, 0, this.width, this.height);
 	}
 
-	public play(frames: DrawEvent[]): Promise<any> {
+	public undo()  {
+		if (this.undoStack.length) {
+			this.redoStack.push(this.undoStack.pop());
+
+			this.replay();
+
+			this.canUndoChange.emit(this.undoStack.length > 0);
+			this.canRedoChange.emit(true);
+		}
+	}
+
+	public redo() {
+		if (this.redoStack.length) {
+			this.undoStack.push(this.redoStack.pop());
+
+			this.replay();
+
+			this.canUndoChange.emit(true);
+			this.canRedoChange.emit(this.redoStack.length > 0);
+		}
+	}
+
+	public reset() {
+		this.undoStack = [];
+		this.redoStack = [];
+
+		this.clear();
+
+		this.canUndoChange.emit(false);
+		this.canRedoChange.emit(false);
+	}
+
+	public replay(fps?: number, index?: number): Promise<any> {
+		const self = this;
+		const delay = fps == undefined || fps <= 0 ? 0 : 1000 / fps;
+
+		index = index == undefined ? 0 : index;
+
+		return new Promise<any>((resolve, reject) => {
+			if (!this.context)
+				reject('Drawing context has not been initialized.');
+
+			if (index == 0) self.clear();
+			if (index < this.undoStack.length) {
+				let event = this.undoStack[index];
+
+				self.replayEvent(event, delay).then(() => {
+					return self.replay(fps, index + 1);
+				}).then(resolve);
+			} else {
+				resolve();
+			}
+		});
+	}
+
+	private replayEvent(event: DrawEvent, delay: number): Promise<any> {
 		const self = this;
 
 		return new Promise((resolve, reject) => {
-			self.reset();
+			if (event.color != undefined)
+				self.color = event.color;
 
-			let index = 0;
-			let interval = setInterval(() => {
-				if (index < frames.length) {
-					let frame = frames[index++];
-					if (frame.color != undefined) self.color = frame.color;
-					if (frame.size != undefined) self.size = frame.size;
-					if (frame.line != undefined) self.doDraw(frame.line.start, frame.line.end);
+			if (event.size != undefined)
+				self.size = event.size;
+
+			if (event.stroke != undefined) {
+				if (delay > 0) {
+					let index = 0;
+					let interval = setInterval(() => {
+						if (index < event.stroke.length) {
+							let line = event.stroke[index++];
+							self.draw(line.start, line.end);
+						} else {
+							clearInterval(interval);
+							resolve();
+						}
+					}, delay);
 				} else {
-					clearInterval(interval);
+					for (let line of event.stroke) {
+						self.draw(line.start, line.end);
+					}
+
 					resolve();
 				}
-			}, 50);
+			} else {
+				resolve();
+			}
 		});
 	}
 }

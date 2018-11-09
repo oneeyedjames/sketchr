@@ -5,16 +5,28 @@
 		</button>
 		<ion-title>Sketchr</ion-title>
 		<ion-buttons end>
-			<button ion-button icon-only (click)="reset()">
+			<button ion-button icon-only (click)="canvas.replay(30)">
+				<ion-icon name="play"></ion-icon>
+			</button>
+			<button ion-button icon-only (click)="canvas.reset()">
 				<ion-icon name="refresh"></ion-icon>
+			</button>
+			<button ion-button icon-only (click)="canvas.undo()">
+				<ion-icon name="undo"></ion-icon>
+			</button>
+			<button ion-button icon-only (click)="canvas.redo()">
+				<ion-icon name="redo"></ion-icon>
 			</button>
 		</ion-buttons>
 	</ion-navbar>
 </ion-header>
 
 <ion-content #content>
-	<app-canvas #canvas color="{{ color.value }}" size="{{ size.value }}"
-		width="{{ content.contentWidth }}" height="{{ content.contentHeight }}"></app-canvas>
+	<app-canvas #canvas
+		[color]="color.value"
+		[size]="size.value"
+		[width]="content.contentWidth"
+		[height]="content.contentHeight"></app-canvas>
 </ion-content>
 
 <ion-footer>
