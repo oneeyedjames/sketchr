@@ -98,8 +98,4 @@ export class HomePage {
 
 		alert.present();
 	}
-
-	reset() {
-		this.canvas.reset();
-	}
 }
