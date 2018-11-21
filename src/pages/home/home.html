@@ -5,6 +5,28 @@
 		</button>
 		<ion-title>Sketchr</ion-title>
 		<ion-buttons end>
+			<button ion-button (click)="showPopover($event)">
+				<span [ngStyle]="penStyle"></span>
+				&nbsp;
+				<ion-icon name="brush"></ion-icon>
+			</button>
+		</ion-buttons>
+	</ion-navbar>
+</ion-header>
+
+<ion-content #content>
+	<app-canvas #canvas
+		[color]="colorProv.current.value"
+		[size]="sizeProv.current.value"
+		[width]="content.contentWidth"
+		[height]="content.contentHeight"
+		(canUndo)="canUndo = $event"
+		(canRedo)="canRedo = $event"></app-canvas>
+</ion-content>
+
+<ion-footer>
+	<ion-toolbar>
+		<ion-buttons start>
 			<button ion-button icon-only (click)="canvas.replay(30)">
 				<ion-icon name="play"></ion-icon>
 			</button>
@@ -16,29 +38,6 @@
 			</button>
 			<button ion-button icon-only (click)="canvas.redo()" [disabled]="!canRedo">
 				<ion-icon name="redo"></ion-icon>
-			</button>
-		</ion-buttons>
-	</ion-navbar>
-</ion-header>
-
-<ion-content #content>
-	<app-canvas #canvas
-		[color]="color.value"
-		[size]="size.value"
-		[width]="content.contentWidth"
-		[height]="content.contentHeight"
-		(canUndo)="canUndo = $event"
-		(canRedo)="canRedo = $event"></app-canvas>
-</ion-content>
-
-<ion-footer>
-	<ion-toolbar>
-		<ion-buttons start>
-			<button ion-button (click)="showColorAlert()">
-				Color: {{ color.label }}
-			</button>
-			<button ion-button (click)="showSizeAlert()">
-				Size: {{ size.label }}
 			</button>
 		</ion-buttons>
 	</ion-toolbar>
