@@ -1,0 +1,22 @@
+<ion-list>
+	<ion-list-header>Color</ion-list-header>
+	<ion-item>
+		<div *ngFor="let color of colorProv.getAll()"
+			[ngClass]="{ 'active' : color == colorProv.current, 'circle' : true }">
+			<button (click)="setColor(color.value)"
+				[ngStyle]="{ 'background-color' : color.value }"></button>
+		</div>
+	</ion-item>
+	<ion-list-header>Size</ion-list-header>
+	<ion-item>
+		<div *ngFor="let size of sizeProv.getAll()"
+			[ngClass]="{ 'active' : size == sizeProv.current, 'circle' : true }">
+			<button (click)="setSize(size.value)"
+				[ngStyle]="{
+					'width' : size.value + 'px',
+					'height' : size.value + 'px',
+					'margin' : ((36 - size.value) / 2) + 'px'
+				}"></button>
+		</div>
+	</ion-item>
+</ion-list>
