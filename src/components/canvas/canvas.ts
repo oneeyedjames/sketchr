@@ -19,8 +19,7 @@ export interface DrawEvent {
 
 @Component({
 	selector: 'app-canvas',
-	template: '<canvas #canvas></canvas>',
-	styles: ['canvas { border: none }']
+	template: '<canvas #canvas></canvas>'
 })
 export class CanvasComponent implements AfterViewInit {
 	private _color: string = '#000';
