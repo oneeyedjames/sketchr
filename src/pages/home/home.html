@@ -39,6 +39,9 @@
 			<button ion-button icon-only (click)="canvas.redo()" [disabled]="!canRedo">
 				<ion-icon name="redo"></ion-icon>
 			</button>
+			<a ion-button [href]="canvas.downloadUri" [download]="'image.png'">
+				<ion-icon name="download"></ion-icon>
+			</a>
 		</ion-buttons>
 	</ion-toolbar>
 </ion-footer>

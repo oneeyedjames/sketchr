@@ -89,6 +89,10 @@ export class CanvasComponent implements AfterViewInit {
 	@Output('draw')
 	private drawEvent = new EventEmitter<DrawEvent>();
 
+	get downloadUri(): string {
+		return this.canvas.nativeElement.toDataURL('image/png');
+	}
+
 	public ngAfterViewInit() {
 		this.initContext(this.canvas.nativeElement);
 		this.initObserver(this.canvas.nativeElement);
